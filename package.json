@@ -14,10 +14,9 @@
     "release:major": "release-it major"
   },
   "devDependencies": {
+    "@release-it/conventional-changelog": "^10.0.2",
+    "release-it": "^19.0.6",
     "vitest": "^2.0.0",
-    "web-ext": "^7.11.0",
-    "release-it": "^17.0.0",
-    "@release-it/bumper": "^5.0.0",
-    "@release-it/conventional-changelog": "^7.0.0"
+    "web-ext": "^8.3.0"
   }
 }

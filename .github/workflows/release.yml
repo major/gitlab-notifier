@@ -54,11 +54,17 @@ jobs:
         run: |
           # Try to bump; if no commits warrant a bump, exit gracefully
           if cz bump --changelog --yes 2>&1 | tee bump_output.txt; then
-            echo "released=true" >> $GITHUB_OUTPUT
-            echo "version=$(cz version -p)" >> $GITHUB_OUTPUT
-            echo "tag=v$(cz version -p)" >> $GITHUB_OUTPUT
+            # cz bump can exit 0 but still not bump (NO_COMMITS_TO_BUMP)
+            if grep -qE "NoneIncrementExit|NO_COMMITS_TO_BUMP" bump_output.txt; then
+              echo "No version bump needed"
+              echo "released=false" >> $GITHUB_OUTPUT
+            else
+              echo "released=true" >> $GITHUB_OUTPUT
+              echo "version=$(cz version -p)" >> $GITHUB_OUTPUT
+              echo "tag=v$(cz version -p)" >> $GITHUB_OUTPUT
+            fi
           else
-            if grep -q "NoneIncrementExit" bump_output.txt; then
+            if grep -qE "NoneIncrementExit|NO_COMMITS_TO_BUMP" bump_output.txt; then
               echo "No version bump needed"
               echo "released=false" >> $GITHUB_OUTPUT
             else

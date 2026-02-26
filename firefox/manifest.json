@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "GitLab Notifier",
+  "version": "0.1.0",
+  "description": "Get notifications from one or more GitLab instances",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{a8c4b2e1-3f7d-4c9a-b5e2-1d6f8a0c3e7b}",
+      "strict_min_version": "91.0"
+    }
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "notifications",
+    "tabs",
+    "*://*/*"
+  ],
+  "background": {
+    "scripts": ["storage.js", "gitlab-api.js", "background.js"],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "48": "icons/icon-48.png",
+      "96": "icons/icon-96.png"
+    },
+    "default_title": "GitLab Notifier"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "48": "icons/icon-48.png",
+    "96": "icons/icon-96.png"
+  }
+}

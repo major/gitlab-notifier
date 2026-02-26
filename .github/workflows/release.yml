@@ -1,0 +1,76 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension with web-ext
+        run: npm run build
+
+      - name: Get version from manifest
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./firefox/manifest.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Sign extension with Mozilla
+        run: npm run sign
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+
+      - name: Rename signed XPI
+        run: |
+          SIGNED_XPI=$(find web-ext-artifacts -name "*.xpi" -type f | head -n 1)
+          if [ -n "$SIGNED_XPI" ]; then
+            mv "$SIGNED_XPI" web-ext-artifacts/gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi
+            echo "Signed XPI renamed to gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi"
+          fi
+
+      - name: List build artifacts
+        run: ls -lh web-ext-artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            web-ext-artifacts/gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi
+            web-ext-artifacts/gitlab_notifier-*.zip
+          body: |
+            ## GitLab Notifier v${{ steps.get_version.outputs.VERSION }}
+
+            ### Installation
+            - **Firefox (Signed)**: Download the `-signed.xpi` file - this is signed by Mozilla and will install without warnings
+            - **Source Code**: Download the `.zip` for review or manual installation
+
+            ### Files
+            - `gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi` - Mozilla-signed extension (recommended)
+            - `gitlab_notifier-*.zip` - Source code
+
+            ### Changes
+            See commit history for details.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

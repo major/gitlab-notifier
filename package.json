@@ -1,0 +1,23 @@
+{
+  "name": "gitlab-notifier",
+  "version": "0.1.0",
+  "description": "Get notifications from one or more GitLab instances",
+  "license": "MIT",
+  "scripts": {
+    "start": "web-ext run --source-dir firefox/",
+    "build": "web-ext build --source-dir firefox/ --artifacts-dir web-ext-artifacts/ --overwrite-dest",
+    "lint": "web-ext lint --source-dir firefox/",
+    "test": "vitest run",
+    "sign": "./build.sh -s",
+    "release:patch": "release-it patch",
+    "release:minor": "release-it minor",
+    "release:major": "release-it major"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0",
+    "web-ext": "^7.11.0",
+    "release-it": "^17.0.0",
+    "@release-it/bumper": "^5.0.0",
+    "@release-it/conventional-changelog": "^7.0.0"
+  }
+}

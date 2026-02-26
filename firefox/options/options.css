@@ -1,0 +1,469 @@
+/* ============================================================
+   CSS custom properties — light mode defaults
+   ============================================================ */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #888888;
+  --border-color: #e0e0e0;
+  --accent-color: #e24329;
+  --input-bg: #ffffff;
+  --input-border: #cccccc;
+  --input-focus: #e24329;
+  --btn-primary-bg: #e24329;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #f0f0f0;
+  --btn-secondary-text: #333333;
+  --btn-danger-bg: #c0392b;
+  --btn-danger-text: #ffffff;
+  --success-color: #0a7a4b;
+  --error-color: #c0392b;
+  --warning-color: #e67e22;
+  --card-bg: #ffffff;
+  --card-border: #e0e0e0;
+}
+
+/* Dark mode — explicit override */
+[data-theme="dark"] {
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #2a2a3e;
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaaaaa;
+  --text-muted: #666666;
+  --border-color: #3a3a50;
+  --input-bg: #252535;
+  --input-border: #3a3a50;
+  --input-focus: #e24329;
+  --btn-secondary-bg: #3a3a50;
+  --btn-secondary-text: #e0e0e0;
+  --card-bg: #252535;
+  --card-border: #3a3a50;
+}
+
+/* Auto dark mode — system preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-primary: #1e1e2e;
+    --bg-secondary: #2a2a3e;
+    --text-primary: #e0e0e0;
+    --text-secondary: #aaaaaa;
+    --text-muted: #666666;
+    --border-color: #3a3a50;
+    --input-bg: #252535;
+    --input-border: #3a3a50;
+    --btn-secondary-bg: #3a3a50;
+    --btn-secondary-text: #e0e0e0;
+    --card-bg: #252535;
+    --card-border: #3a3a50;
+  }
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 0;
+}
+
+.options-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+.options-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.options-header h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   Sections
+   ============================================================ */
+.options-section {
+  margin-bottom: 32px;
+}
+
+.options-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+/* ============================================================
+   Forms
+   ============================================================ */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="url"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: border-color 0.15s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--input-focus);
+}
+
+/* ============================================================
+   Toggle rows
+   ============================================================ */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toggle-row:last-child {
+  border-bottom: none;
+}
+
+.toggle-label {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.toggle-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   Toggle switch
+   ============================================================ */
+.toggle-switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #cccccc;
+  border-radius: 22px;
+  transition: background 0.2s;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--accent-color);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(18px);
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+}
+
+.btn-secondary {
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
+.btn-danger {
+  background: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* ============================================================
+   Instance cards
+   ============================================================ */
+.instance-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.instance-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.instance-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.instance-url {
+  font-size: 12px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.instance-status {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.status-connected {
+  background: #d4edda;
+  color: #0a7a4b;
+}
+
+.status-error {
+  background: #f8d7da;
+  color: #c0392b;
+}
+
+.status-unknown {
+  background: #e0e0e0;
+  color: #555555;
+}
+
+.instance-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Add instance form
+   ============================================================ */
+.add-instance-form {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.add-instance-form h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.connection-result {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  display: none;
+}
+
+.connection-result.success {
+  background: #d4edda;
+  color: #0a7a4b;
+  display: block;
+}
+
+.connection-result.error {
+  background: #f8d7da;
+  color: #c0392b;
+  display: block;
+}
+
+/* ============================================================
+   Help box
+   ============================================================ */
+.help-box {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent-color);
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.help-box code {
+  background: var(--border-color);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.help-box a {
+  color: var(--accent-color);
+}
+
+/* ============================================================
+   Radio group
+   ============================================================ */
+.radio-group {
+  display: flex;
+  gap: 16px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: var(--accent-color);
+}
+
+/* ============================================================
+   Misc
+   ============================================================ */
+.section-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+}
+
+.text-muted {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.project-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.project-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 13px;
+}
+
+.project-item:last-child {
+  border-bottom: none;
+}
+
+.project-item input[type="checkbox"] {
+  accent-color: var(--accent-color);
+}

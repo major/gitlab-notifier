@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GitLab Notifier</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <div class="header-title">
+        <img src="../icons/icon-48.png" alt="" class="header-icon">
+        <span>GitLab Notifier</span>
+      </div>
+      <div class="header-actions">
+        <button id="show-read-toggle" class="icon-btn" title="Show read notifications" aria-label="Show read notifications">👁️</button>
+        <button id="theme-toggle" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">🌙</button>
+        <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Open settings">⚙️</button>
+      </div>
+    </header>
+
+    <nav class="filter-bar" role="tablist">
+      <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">
+        All <span class="tab-count" id="count-all">0</span>
+      </button>
+      <button class="filter-tab" data-filter="todo" role="tab" aria-selected="false">
+        TODOs <span class="tab-count" id="count-todo">0</span>
+      </button>
+      <button class="filter-tab" data-filter="issue" role="tab" aria-selected="false">
+        Issues <span class="tab-count" id="count-issue">0</span>
+      </button>
+      <button class="filter-tab" data-filter="merge_request" role="tab" aria-selected="false">
+        MRs <span class="tab-count" id="count-merge_request">0</span>
+      </button>
+      <button class="filter-tab" data-filter="pipeline" role="tab" aria-selected="false">
+        Pipelines <span class="tab-count" id="count-pipeline">0</span>
+      </button>
+    </nav>
+
+    <main class="notification-list" id="notification-list" role="list">
+      <div class="empty-state" id="empty-state">
+        <div class="empty-icon">🔔</div>
+        <p>No notifications yet</p>
+        <p class="empty-hint">Add a GitLab instance in Settings to get started</p>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <button id="mark-all-read" class="btn btn-secondary">Mark All Read</button>
+      <button id="clear-all" class="btn btn-danger">Clear All</button>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

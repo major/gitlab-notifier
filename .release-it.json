@@ -1,0 +1,47 @@
+{
+  "git": {
+    "commitMessage": "Release v${version}",
+    "tagName": "v${version}",
+    "push": true,
+    "requireBranch": "main",
+    "requireCleanWorkingDir": true
+  },
+  "github": {
+    "release": true,
+    "releaseName": "v${version}",
+    "autoGenerate": true,
+    "assets": [
+      "web-ext-artifacts/gitlab_notifier-*.zip",
+      "web-ext-artifacts/gitlab_notifier-*-signed.xpi"
+    ]
+  },
+  "hooks": {
+    "before:init": ["npm run lint"],
+    "after:bump": [
+      "node -e \"const fs=require('fs');const pkg=require('./package.json');const manifest=require('./firefox/manifest.json');manifest.version=pkg.version;fs.writeFileSync('./firefox/manifest.json',JSON.stringify(manifest,null,2)+'\\n')\"",
+      "git add firefox/manifest.json"
+    ],
+    "before:github:release": ["npm run build"],
+    "after:release": "echo 🎉 Release ${version} published to GitHub!"
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": {
+        "name": "conventionalcommits",
+        "types": [
+          { "type": "feat", "section": "✨ Features" },
+          { "type": "fix", "section": "🐛 Bug Fixes" },
+          { "type": "perf", "section": "⚡ Performance" },
+          { "type": "refactor", "section": "♻️ Refactoring" },
+          { "type": "docs", "section": "📚 Documentation" },
+          { "type": "chore", "hidden": true }
+        ]
+      },
+      "infile": "CHANGELOG.md",
+      "header": "# Changelog\n\nAll notable changes to GitLab Notifier.\n"
+    }
+  }
+}

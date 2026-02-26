@@ -14,8 +14,8 @@ Firefox requires extensions to be signed by Mozilla to install without developer
 Create a `.env` file in the project root (never commit this):
 
 ```
-AMO_JWT_ISSUER=user:12345678:123
-AMO_JWT_SECRET=your-jwt-secret-here
+WEB_EXT_API_KEY=user:12345678:123
+WEB_EXT_API_SECRET=your-api-secret-here
 ```
 
 Then run:
@@ -28,7 +28,7 @@ npm run sign
 Or use the build script:
 
 ```bash
-AMO_JWT_ISSUER=... AMO_JWT_SECRET=... ./build.sh -s
+WEB_EXT_API_KEY=... WEB_EXT_API_SECRET=... ./build.sh -s
 ```
 
 The signed `.xpi` will appear in `web-ext-artifacts/`.
@@ -39,8 +39,8 @@ The release workflow reads signing credentials from repository secrets. Add thes
 
 | Secret | Value |
 |--------|-------|
-| `AMO_JWT_ISSUER` | Your Mozilla API JWT issuer |
-| `AMO_JWT_SECRET` | Your Mozilla API JWT secret |
+| `WEB_EXT_API_KEY` | Your Mozilla API JWT issuer |
+| `WEB_EXT_API_SECRET` | Your Mozilla API JWT secret |
 
 The workflow triggers automatically on tags matching `v*` (e.g. `v0.1.0`).
 

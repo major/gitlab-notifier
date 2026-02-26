@@ -11,7 +11,7 @@
     "sign": "./build.sh -s"
   },
   "devDependencies": {
-    "vitest": "^2.0.0",
+    "vitest": "^4.0.18",
     "web-ext": "^8.3.0"
   }
 }

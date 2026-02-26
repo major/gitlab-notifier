@@ -8,14 +8,9 @@
     "build": "web-ext build --source-dir firefox/ --artifacts-dir web-ext-artifacts/ --overwrite-dest",
     "lint": "web-ext lint --source-dir firefox/",
     "test": "vitest run",
-    "sign": "./build.sh -s",
-    "release:patch": "release-it patch",
-    "release:minor": "release-it minor",
-    "release:major": "release-it major"
+    "sign": "./build.sh -s"
   },
   "devDependencies": {
-    "@release-it/conventional-changelog": "^10.0.2",
-    "release-it": "^19.0.6",
     "vitest": "^2.0.0",
     "web-ext": "^8.3.0"
   }

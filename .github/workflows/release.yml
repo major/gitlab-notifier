@@ -1,38 +1,118 @@
-name: Build and Release
+name: Release
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'
+      - "v*"
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build-and-release:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    name: Commitizen Release
     runs-on: ubuntu-latest
+    needs: ci
+    # Prevent infinite loop from bump commits
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    concurrency:
+      group: release-${{ github.ref_name }}
+      cancel-in-progress: false
+
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Force branch to workflow sha
+        run: git reset --hard ${{ github.sha }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Install commitizen
+        run: uv tool install commitizen
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version and create changelog
+        id: bump
+        run: |
+          # Try to bump; if no commits warrant a bump, exit gracefully
+          if cz bump --changelog --yes 2>&1 | tee bump_output.txt; then
+            echo "released=true" >> $GITHUB_OUTPUT
+            echo "version=$(cz version -p)" >> $GITHUB_OUTPUT
+            echo "tag=v$(cz version -p)" >> $GITHUB_OUTPUT
+          else
+            if grep -q "NoneIncrementExit" bump_output.txt; then
+              echo "No version bump needed"
+              echo "released=false" >> $GITHUB_OUTPUT
+            else
+              cat bump_output.txt
+              exit 1
+            fi
+          fi
+
+      - name: Push changes
+        if: steps.bump.outputs.released == 'true'
+        run: |
+          git push origin ${{ github.ref_name }}
+          git push origin --tags
+
+      - name: Create GitHub Release
+        if: steps.bump.outputs.released == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.bump.outputs.tag }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    outputs:
+      released: ${{ steps.bump.outputs.released || 'false' }}
+      version: ${{ steps.bump.outputs.version }}
+      tag: ${{ steps.bump.outputs.tag }}
+
+  sign:
+    name: Build and Sign Extension
+    runs-on: ubuntu-latest
+    needs: release
+    if: needs.release.outputs.released == 'true'
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.release.outputs.tag }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build extension with web-ext
+      - name: Build extension
         run: npm run build
-
-      - name: Get version from manifest
-        id: get_version
-        run: |
-          VERSION=$(node -p "require('./firefox/manifest.json').version")
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Sign extension with Mozilla
         run: npm run sign
@@ -42,35 +122,79 @@ jobs:
 
       - name: Rename signed XPI
         run: |
+          VERSION=${{ needs.release.outputs.version }}
           SIGNED_XPI=$(find web-ext-artifacts -name "*.xpi" -type f | head -n 1)
           if [ -n "$SIGNED_XPI" ]; then
-            mv "$SIGNED_XPI" web-ext-artifacts/gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi
-            echo "Signed XPI renamed to gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi"
+            mv "$SIGNED_XPI" "web-ext-artifacts/gitlab-notifier-${VERSION}-signed.xpi"
           fi
 
-      - name: List build artifacts
-        run: ls -lh web-ext-artifacts/
-
-      - name: Create Release
+      - name: Upload artifacts to release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.release.outputs.tag }}
           files: |
-            web-ext-artifacts/gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi
+            web-ext-artifacts/gitlab-notifier-*-signed.xpi
             web-ext-artifacts/gitlab_notifier-*.zip
-          body: |
-            ## GitLab Notifier v${{ steps.get_version.outputs.VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            ### Installation
-            - **Firefox (Signed)**: Download the `-signed.xpi` file - this is signed by Mozilla and will install without warnings
-            - **Source Code**: Download the `.zip` for review or manual installation
+  release-tag:
+    name: Release from Tag
+    runs-on: ubuntu-latest
+    needs: ci
+    # Only run on manual tag pushes (not from automated release job)
+    if: startsWith(github.ref, 'refs/tags/v')
 
-            ### Files
-            - `gitlab-notifier-${{ steps.get_version.outputs.VERSION }}-signed.xpi` - Mozilla-signed extension (recommended)
-            - `gitlab_notifier-*.zip` - Source code
+    permissions:
+      contents: write
 
-            ### Changes
-            See commit history for details.
-          draft: false
-          prerelease: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG#v}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Sign extension with Mozilla
+        run: npm run sign
+        env:
+          WEB_EXT_API_KEY: ${{ secrets.WEB_EXT_API_KEY }}
+          WEB_EXT_API_SECRET: ${{ secrets.WEB_EXT_API_SECRET }}
+
+      - name: Rename signed XPI
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          SIGNED_XPI=$(find web-ext-artifacts -name "*.xpi" -type f | head -n 1)
+          if [ -n "$SIGNED_XPI" ]; then
+            mv "$SIGNED_XPI" "web-ext-artifacts/gitlab-notifier-${VERSION}-signed.xpi"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            web-ext-artifacts/gitlab-notifier-*-signed.xpi
+            web-ext-artifacts/gitlab_notifier-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
